@@ -1,0 +1,40 @@
+#include<stdio.h>
+using namespace std;
+int arr[100000];
+int temp[100000];
+void merge_sort(int l, int r)
+{
+	if (r - l <= 0)
+		return; // 정렬할 칸이 없을때.
+	int mid = (l + r) / 2;
+	merge_sort(l, mid); //왼쪽 절반
+	merge_sort(mid + 1, r); // 오른쪽 절반
+	int i = l;
+	int j = mid + 1;
+	int index = l;
+	while (i <= mid && j <= r)
+	{ // 두 수중 작은 값을 먼저 temp에 순서대로 누적.
+		if (arr[i] < arr[j])
+			temp[index++] = arr[i++];
+		else
+			temp[index++] = arr[j++];
+	}
+	while (i <= mid) // 왼쪽에 숫자가 남은 경우.
+		temp[index++] = arr[i++];
+	while (j<=r) // 오른쪽에 숫자가 남은 경우.
+		temp[index++] = arr[j++];
+	for (int k = l; k <= r; k++)
+		arr[k] = temp[k]; // 임시 저장소를 실제 저장소에 복사.
+}
+int main()
+{
+	int n;
+	scanf("%d", &n);
+	for (int i = 0; i < n; i++)
+		scanf("%d", &arr[i]);
+	merge_sort(0, n - 1);
+	for (int i = 0; i < n; i++)
+		printf("%d ", arr[i]);
+	printf("\n");
+	return 0;
+}
