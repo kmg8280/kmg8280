@@ -1,34 +1,58 @@
-#include<iostream>
-#include<string>
-#define MOD 100000007
+#include<stdio.h>
+#include<memory.h>
+#include<vector>
 using namespace std;
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+int n;
+vector<long long> h;
+long long solve(int left, int right)
+{ // solve(left,right) left~right 범위에서 가장 큰 직사각형을 반환.
+	if (left == right) // 가장작은문제에 도달 해당 높이를 리턴.
+		return h[left];
+	int mid = (left + right) / 2; // 반을 나누자.
+	long long ret = MAX(solve(left, mid), solve(mid + 1, right)); // 반을 나눈다.
+
+	int lo = mid, hi = mid + 1; // 중앙선을 기준으로 왼쪽한칸 오른쪽한칸
+	long long height = MIN(h[lo], h[hi]); // 높이는 둘 중 낮은 걸로 해야한다.
+	ret = MAX(ret, height * 2); // ret 현재 최대 직사각형 크기.
+
+	while (left < lo || hi < right) // left < lo 이거나  hi < right면 아직 전체로 확장한 것이 아님.
+	{
+		if (hi < right && (lo == left || h[lo - 1] < h[hi + 1]))
+		{ // hi이 right보다 작고 , lo==left(왼쪽으로 증가하는게 끝까지 도착했거나) , 오른쪽 히스토그램이 왼쪽 히스토그램보다 큰경우
+			hi++;
+			height = MIN(height, h[hi]); // 높이는 합친 히스토그램의 높이와 현재 높이의 최소
+		}
+		else // 위에 경우와 반대 되는 경우.
+		{
+			lo--;
+			height = MIN(height, h[lo]); // 높이는 합친 히스토그램의 높이와 현재 높이의 최소
+		}
+		ret = MAX(ret, height*(hi - lo + 1));
+		// 증가할떄마다 최대값을 초기화 시켜줘야 한다.
+	}
+	return ret;
+	// 최종적으로 구해진 최대 직사각형의 넓이 반환
+}
+void test_case()
+{	
+	h.clear();
+	int x;
+	for (int i = 0; i < n; i++)
+	{
+		scanf("%d", &x);
+		h.push_back(x);
+	}
+	printf("%lld\n", solve(0, n - 1));
+}
 int main()
 {
-	int a, m;
-	string binary;
-	cin >> a >> m; // 구할 a^m을 입력.
-	while (m > 0)
+	while (1)
 	{
-		if (m % 2 == 1)
-			binary = "1" + binary;
-		else
-			binary = "0" + binary;
-		m /= 2;
+		scanf("%d", &n);
+		if (n == 0)
+			break;
+		test_case();
 	}
-
-	long long p[31];
-	p[0] = a;
-	for (int i = 1; i < binary.length(); i++)
-	{
-		p[i] = (p[i - 1] * p[i - 1])%MOD; // long long 으로는 표현못하는 경우가 있어서 나머지 연산을 한다.
-	} // 2진수로 표현한 m값을 가지고 사용할 배열을 만든다.
-	long long solve = 1;
-	for (int i = binary.length()-1; i >= 0; i--)
-	{
-		if (binary[i] == '1') // 1이면 포함하므로 곱한다.
-			solve = (solve*p[binary.length() - i-1])%MOD;
-	}
-	cout << solve << '\n';
-	//a^m의 결과가 나온다
-	return 0;
 }
